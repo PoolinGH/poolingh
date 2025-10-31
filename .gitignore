@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# NPM
+.npm
+
+# IDE
+.idea
+.vscode
+
+# Build
+/dist
+*.tgz
+
+# Custom
+/logs

@@ -1,0 +1,13 @@
+.vscode
+.idea
+img/
+logs/
+node_modules/
+src/
+tests/
+.babelrc
+.eslintrc.json
+.gitignore
+.prettierrc.json
+.git
+.tgz
