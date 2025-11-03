@@ -17,6 +17,9 @@
 <p>
   ⚠️ DISCLAIMER: This library is primarily designed to be useful. It is essential to follow certain rules, particularly regarding the GitHub Search API rate limits, authentication, and responsible token management. Adhering to these constraints ensures compliance with GitHub's policies and prevents disruptions in data collection. The authors of this library have taken all necessary measures to ensure compliance with the rules regarding API rate limits and authentication management, particularly in the case of pooling and parallelization, to name but a few. However, users of the library remain solely responsible for any consequences. The authors disclaim all responsibility in the event of misuse, abuse, circumvention, sanctions, non-compliance, or any other violation.
 </p>
+<p>
+ℹ️ More information <a href="https://www.npmjs.com/package/poolingh">PoolinGH (npm)</a>. 
+</p>
 
 ## 📝 How to cite?
 
@@ -30,13 +33,13 @@ TODO
 
 - [Install Node.js](https://nodejs.org/fr/download).
 
-2. PoolinGH installation:
+1. [PoolinGH](https://www.npmjs.com/package/poolingh) installation from npm:
 
 ```shell
   npm install poolingh
 ```
 
-3. GitHub Search API tokens creation:
+1. GitHub Search API tokens creation:
 
 - Generate and collect GitHub tokens from one or more active GitHub accounts. [GitHub](https://github.com/) > [Settings](https://github.com/settings/profile) > [Developer Settings](https://github.com/settings/apps) > [Personal access tokens](https://github.com/settings/personal-access-tokens) > [Generate new token](https://github.com/settings/personal-access-tokens/new) > Enter a "Token name" > Define an "Expiration" date > Select "Public Repositories (read-only)" > Click on "Generate token".
 
