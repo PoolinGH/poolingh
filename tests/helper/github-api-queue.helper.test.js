@@ -22,7 +22,7 @@ describe('GitHub Search API Queue', () => {
     try {
       vi.useRealTimers();
     } catch (error) {
-      // this is for the linter to ignore
+      // Linter ignorance here.
     }
   });
 

@@ -150,7 +150,7 @@ export class GitHubApiQueue {
             }
           })
           .finally(() => {
-            setTimeout(queue, 0); //Loops.
+            setTimeout(queue, 0); // Loops.
           });
       }
     };

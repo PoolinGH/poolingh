@@ -101,7 +101,7 @@ export class GitHubApiClient {
         ) {
           const retryAfter = error?.response?.headers['retry-after'];
           if (retryAfter) {
-            // If Retry-After header is present, use it
+            // If Retry-After header is present, use it.
             const resetTime = Date.now() + parseInt(retryAfter) * 1000;
             this._logger.warn(
               chalk.yellow(

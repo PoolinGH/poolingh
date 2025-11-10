@@ -34,7 +34,7 @@ describe('GitHub Search API client', () => {
     try {
       vi.useRealTimers();
     } catch (error) {
-      // for the linter to ignore
+      // Linter ignorance here.
     }
   });
 
@@ -145,6 +145,7 @@ describe('GitHub Search API client', () => {
   });
 
   it('pauses client when 403 error occurs with Retry-After header', async () => {
+    // Arrange
     vi.useFakeTimers();
     const mockError = {
       message: 'Rate limit exceeded',
@@ -160,20 +161,24 @@ describe('GitHub Search API client', () => {
     axios.request.mockRejectedValueOnce(mockError);
     const pauseSpy = vi.spyOn(client, 'pause');
 
+    // Act
     await expect(
       client.request(
         'https://api.github.com/search/repositories?q=stars:>=1000',
       ),
     ).rejects.toEqual(mockError);
 
+    // Assert
     expect(pauseSpy).toHaveBeenCalled();
     expect(client.isAuthorized()).toBe(false);
     expect(client._logger.warn).toHaveBeenCalled();
 
+    // Cleanup
     vi.useRealTimers();
   });
 
   it('pauses client when 429 error occurs with Retry-After header', async () => {
+    // Arrange
     vi.useFakeTimers();
     const mockError = {
       message: 'Too many requests',
@@ -189,26 +194,32 @@ describe('GitHub Search API client', () => {
     axios.request.mockRejectedValueOnce(mockError);
     const pauseSpy = vi.spyOn(client, 'pause');
 
+    // Act
     await expect(
       client.request(
         'https://api.github.com/search/repositories?q=stars:>=1000',
       ),
     ).rejects.toEqual(mockError);
 
+    // Assert
     expect(pauseSpy).toHaveBeenCalled();
     expect(client.isAuthorized()).toBe(false);
     expect(client._logger.warn).toHaveBeenCalled();
 
+    // Cleanup
     vi.useRealTimers();
   });
 
   it('resumes immediately when reset time is in the past', () => {
+    // Arrange
     vi.useFakeTimers();
     const pastTime = Date.now() - 5000;
     const resumeSpy = vi.spyOn(client, '_resume');
 
+    // Act
     client.pause(pastTime);
 
+    // Assert
     expect(client.isAuthorized()).toBe(true);
     expect(resumeSpy).toHaveBeenCalled();
     expect(client._logger.info).toHaveBeenCalledWith(
@@ -217,6 +228,7 @@ describe('GitHub Search API client', () => {
       ),
     );
 
+    // Cleanup
     vi.useRealTimers();
   });
 });

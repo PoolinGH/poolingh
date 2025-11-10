@@ -23,7 +23,19 @@
 
 ## 📝 How to cite?
 
-TODO
+```latex
+@software{poolingh,
+  author    = {André, Maxime and
+               Serbout, Souhaila and
+               Raglianti, Marco},
+  title     = {PoolinGH},
+  month     = oct,
+  year      = 2025,
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.17574293},
+  url       = {https://doi.org/10.5281/zenodo.17574293}
+}
+```
 
 ## ▶️ Getting started
 
@@ -247,7 +259,7 @@ npm run test
 ### Technologies
 
 - JavaScript
-- NodeJS v18.12.1
+- NodeJS
 
 ### Libraries
 
@@ -255,6 +267,19 @@ npm run test
 - [winston](https://www.npmjs.com/package/winston) is the package for logging.
 - [axios](https://www.npmjs.com/package/axios) is the package for HTTP calls.
 - [vitest](https://www.npmjs.com/package/vitest) is the package for unit tests.
+- [chalk](https://www.npmjs.com/package/chalk) is the package for log coloring.
+
+# 🤝 Contributing
+
+If you want to contribute to the project, please consider the following instructions:
+
+- Any method or class must be named clearly (no abbreviations).
+- More generally, any contribution must follow the conventions and keep the shape of previous contributions.
+- Any contribution must be tested (unit tests). See `/test` directory.
+- All the tests and the CI/CD pipeline must pass before definitively integrating the contribution.
+- Any contribution must be documented, especially through comments in the source code and by updating the README.md file.
+- Any contribution must be developed on a separate branch.
+- Any contribution must be approved via the pull request mechanism.
 
 # Further reading
 
