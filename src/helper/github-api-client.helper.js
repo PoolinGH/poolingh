@@ -2,6 +2,7 @@
 
 import { Logger } from './logger.helper.js';
 import axios from 'axios';
+import chalk from 'chalk';
 
 /**
  * Manages a GitHub Search API client with a specific token.
@@ -27,6 +28,7 @@ export class GitHubApiClient {
     this._resetAt = 0;
     this._safetyRemainingRequestCount = safetyRemainingRequestCount;
     this._tokenResumeBufferTime = tokenResumeBufferTime;
+    this._resumeTimer = null;
     this._logger = new Logger(loggingPath);
   }
 
@@ -55,7 +57,9 @@ export class GitHubApiClient {
   }
 
   /**
-   * Performs a request to the GitHub Search API with the client.
+   * Performs a request to the GitHub API with the client.
+   * Automatically handles rate limiting and pauses the client when necessary.
+   * Handles 403 and 429 rate limit errors explicitly using Retry-After header or stored reset time.
    * @param {string} url The request URL.
    * @param {Object} params The request parameters.
    * @returns {Promise<any>} The response data.
@@ -67,7 +71,7 @@ export class GitHubApiClient {
       url,
       method: params.method || 'GET',
       headers: {
-        Authorization: `token ${this._token}`,
+        Authorization: `Bearer ${this._token}`,
         Accept: 'application/vnd.github.v3+json',
         ...params.headers,
       },
@@ -81,7 +85,9 @@ export class GitHubApiClient {
         this._busy = false;
 
         // Returns the data.
-        this._logger.info(`[client-${this.getToken()}] Query: url=${url}`);
+        this._logger.info(
+          chalk.cyan(`[client-${this.getToken()}]`) + ` Query: url=${url}`,
+        );
 
         return response;
       })
@@ -89,13 +95,39 @@ export class GitHubApiClient {
         // Updates the rate limit after each request to determine whether the client is ready for the next request.
         this._refresh(error?.response?.headers);
 
+        if (
+          error?.response?.status === 403 ||
+          error?.response?.status === 429
+        ) {
+          const retryAfter = error?.response?.headers['retry-after'];
+          if (retryAfter) {
+            // If Retry-After header is present, use it
+            const resetTime = Date.now() + parseInt(retryAfter) * 1000;
+            this._logger.warn(
+              chalk.yellow(
+                `[client-${this.getToken()}] Rate limit exceeded (${error.response.status}), pausing until ${new Date(resetTime).toISOString()}`,
+              ),
+            );
+            this.pause(resetTime);
+          } else if (this._resetAt > 0) {
+            this._logger.warn(
+              chalk.yellow(
+                `[client-${this.getToken()}] Rate limit exceeded (${error.response.status}), using stored reset time`,
+              ),
+            );
+            this.pause(this._resetAt);
+          }
+        }
+
         // Updates busy status.
         this._busy = false;
 
         // Returns the error.
-        this._logger.info(`[client-${this.getToken()}] Query: url=${url}`);
+        this._logger.info(
+          chalk.cyan(`[client-${this.getToken()}]`) + ` Query: url=${url}`,
+        );
         this._logger.error(
-          `[client-${this.getToken()}] Error: ${error.message}`,
+          chalk.red(`[client-${this.getToken()}] Error: ${error.message}`),
         );
         return Promise.reject(error);
       });
@@ -103,6 +135,8 @@ export class GitHubApiClient {
 
   /**
    * Updates the rate limit of the client (based on the token) and changes its availability if necessary.
+   * Only pauses the client when rate limit headers indicate exhaustion.
+   * Missing headers will only trigger a warning, not an automatic pause.
    * @param {Object} headers The headers of the request.
    * @returns {void}
    */
@@ -121,41 +155,74 @@ export class GitHubApiClient {
         this.pause(this._resetAt);
       }
       this._logger.info(
-        `[client-${this.getToken()}] Rate limit: rate_limit=${this._remainingRequests}`,
-      );
-      this._logger.info(
-        `[client-${this.getToken()}] Reset time: reset_time=${new Date(this._resetAt).toISOString()}`,
+        chalk.cyan(`[client-${this.getToken()}]`) +
+          chalk.magenta(` Rate limit remaining: ${this._remainingRequests}`) +
+          `, reset_time=${new Date(this._resetAt).toISOString()}`,
       );
     } else {
-      this.pause(Date.now() + 1000 * 60); // Pauses for 1 minute.
+      this._logger.warn(
+        chalk.yellow(
+          `[client-${this.getToken()}] Rate limit headers not found in response`,
+        ),
+      );
     }
   }
 
   /**
    * Pauses the client until the reset time. The resuming is automatically defined based on the reset time.
-   * @param {Date} resetAt The reset date time at which the client will be authorized again.
+   * If the reset time is in the past, the client resumes immediately.
+   * Clears any existing resume timer to prevent memory leaks and race conditions.
+   * @param {number} resetAt The reset timestamp (in milliseconds) at which the client will be authorized again.
    * @returns {void}
    */
   pause(resetAt) {
     // Pauses the client.
     this._authorized = false;
+
+    if (this._resumeTimer !== null) {
+      clearTimeout(this._resumeTimer);
+      this._resumeTimer = null;
+    }
+
+    const delay = resetAt - Date.now() + this._tokenResumeBufferTime;
+
+    if (delay <= 0) {
+      this._logger.info(
+        chalk.green(
+          `[client-${this.getToken()}] Reset time is in the past, resuming immediately`,
+        ),
+      );
+      this._resume();
+      this._logger.info(chalk.green(`[client-${this.getToken()}] Resumed`));
+      return;
+    }
+
+    const delaySeconds = Math.floor(delay / 1000);
+    const minutes = Math.floor(delaySeconds / 60);
+    const seconds = delaySeconds % 60;
+    const timeUntilReset =
+      minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+
     this._logger.info(
-      `[client-${this.getToken()}] Pause: reset_at=${new Date(resetAt).toISOString()}`,
+      chalk.cyan(`[client-${this.getToken()}]`) +
+        chalk.yellow(' Paused: ') +
+        `reset_at=${new Date(resetAt).toISOString()}, ` +
+        chalk.bold.yellow(`reset_in=${timeUntilReset}`),
     );
-    // Plans the client resume after the reset time.
-    setTimeout(
-      () => {
-        this._resume();
-        this._logger.info(`[client-${this.getToken()}] Resume`);
-      },
-      resetAt - Date.now() + this._tokenResumeBufferTime,
-    );
+
+    this._resumeTimer = setTimeout(() => {
+      this._resume();
+      this._logger.info(chalk.green(`[client-${this.getToken()}] Resumed`));
+    }, delay);
   }
 
   /**
    * Resumes the client after a pause period.
+   * Clears the resume timer reference to free up memory.
+   * @returns {void}
    */
   _resume() {
     this._authorized = true;
+    this._resumeTimer = null;
   }
 }

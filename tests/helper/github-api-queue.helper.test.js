@@ -21,7 +21,9 @@ describe('GitHub Search API Queue', () => {
   afterEach(() => {
     try {
       vi.useRealTimers();
-    } catch {}
+    } catch (error) {
+      // this is for the linter to ignore
+    }
   });
 
   it('Returns clients', () => {

@@ -17,6 +17,7 @@ vi.mock('../../src/helper/logger.helper.js', () => ({
   Logger: vi.fn().mockImplementation(() => ({
     info: vi.fn(),
     error: vi.fn(),
+    warn: vi.fn(),
   })),
 }));
 
@@ -32,7 +33,9 @@ describe('GitHub Search API client', () => {
   afterEach(() => {
     try {
       vi.useRealTimers();
-    } catch {}
+    } catch (error) {
+      // for the linter to ignore
+    }
   });
 
   it('sets busy while request is running, refreshes headers, and sets available after success', async () => {
@@ -139,5 +142,81 @@ describe('GitHub Search API client', () => {
     expect(client.isBusy()).toBe(false);
     expect(client._logger.error).toHaveBeenCalled();
     expect(client.isAuthorized()).toBe(false);
+  });
+
+  it('pauses client when 403 error occurs with Retry-After header', async () => {
+    vi.useFakeTimers();
+    const mockError = {
+      message: 'Rate limit exceeded',
+      response: {
+        status: 403,
+        headers: {
+          'retry-after': '60', // 60 seconds
+          'x-ratelimit-remaining': '0',
+          'x-ratelimit-reset': (Date.now() / 1000 + 3600).toString(),
+        },
+      },
+    };
+    axios.request.mockRejectedValueOnce(mockError);
+    const pauseSpy = vi.spyOn(client, 'pause');
+
+    await expect(
+      client.request(
+        'https://api.github.com/search/repositories?q=stars:>=1000',
+      ),
+    ).rejects.toEqual(mockError);
+
+    expect(pauseSpy).toHaveBeenCalled();
+    expect(client.isAuthorized()).toBe(false);
+    expect(client._logger.warn).toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
+
+  it('pauses client when 429 error occurs with Retry-After header', async () => {
+    vi.useFakeTimers();
+    const mockError = {
+      message: 'Too many requests',
+      response: {
+        status: 429,
+        headers: {
+          'retry-after': '120',
+          'x-ratelimit-remaining': '0',
+          'x-ratelimit-reset': (Date.now() / 1000 + 3600).toString(),
+        },
+      },
+    };
+    axios.request.mockRejectedValueOnce(mockError);
+    const pauseSpy = vi.spyOn(client, 'pause');
+
+    await expect(
+      client.request(
+        'https://api.github.com/search/repositories?q=stars:>=1000',
+      ),
+    ).rejects.toEqual(mockError);
+
+    expect(pauseSpy).toHaveBeenCalled();
+    expect(client.isAuthorized()).toBe(false);
+    expect(client._logger.warn).toHaveBeenCalled();
+
+    vi.useRealTimers();
+  });
+
+  it('resumes immediately when reset time is in the past', () => {
+    vi.useFakeTimers();
+    const pastTime = Date.now() - 5000;
+    const resumeSpy = vi.spyOn(client, '_resume');
+
+    client.pause(pastTime);
+
+    expect(client.isAuthorized()).toBe(true);
+    expect(resumeSpy).toHaveBeenCalled();
+    expect(client._logger.info).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Reset time is in the past, resuming immediately',
+      ),
+    );
+
+    vi.useRealTimers();
   });
 });
