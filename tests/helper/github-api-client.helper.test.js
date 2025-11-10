@@ -33,7 +33,9 @@ describe('GitHub Search API client', () => {
   afterEach(() => {
     try {
       vi.useRealTimers();
-    } catch {}
+    } catch (error) {
+      // for the linter to ignore
+    }
   });
 
   it('sets busy while request is running, refreshes headers, and sets available after success', async () => {
@@ -178,7 +180,7 @@ describe('GitHub Search API client', () => {
       response: {
         status: 429,
         headers: {
-          'retry-after': '120', 
+          'retry-after': '120',
           'x-ratelimit-remaining': '0',
           'x-ratelimit-reset': (Date.now() / 1000 + 3600).toString(),
         },
