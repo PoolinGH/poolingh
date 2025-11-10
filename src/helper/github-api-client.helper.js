@@ -27,7 +27,7 @@ export class GitHubApiClient {
     this._resetAt = 0;
     this._safetyRemainingRequestCount = safetyRemainingRequestCount;
     this._tokenResumeBufferTime = tokenResumeBufferTime;
-    this._resumeTimer = null; 
+    this._resumeTimer = null;
     this._logger = new Logger(loggingPath);
   }
 
@@ -143,10 +143,7 @@ export class GitHubApiClient {
         this.pause(this._resetAt);
       }
       this._logger.info(
-        `[client-${this.getToken()}] Rate limit: rate_limit=${this._remainingRequests}`,
-      );
-      this._logger.info(
-        `[client-${this.getToken()}] Reset time: reset_time=${new Date(this._resetAt).toISOString()}`,
+        `[client-${this.getToken()}] Rate limit: rate_limit=${this._remainingRequests}, reset_time=${new Date(this._resetAt).toISOString()}`,
       );
     } else {
       this._logger.warn(
@@ -165,9 +162,6 @@ export class GitHubApiClient {
   pause(resetAt) {
     // Pauses the client.
     this._authorized = false;
-    this._logger.info(
-      `[client-${this.getToken()}] Pause: reset_at=${new Date(resetAt).toISOString()}`,
-    );
 
     if (this._resumeTimer !== null) {
       clearTimeout(this._resumeTimer);
@@ -184,6 +178,17 @@ export class GitHubApiClient {
       this._logger.info(`[client-${this.getToken()}] Resume`);
       return;
     }
+
+    const delaySeconds = Math.floor(delay / 1000);
+    const minutes = Math.floor(delaySeconds / 60);
+    const seconds = delaySeconds % 60;
+    const timeUntilReset = minutes > 0
+      ? `${minutes}m ${seconds}s`
+      : `${seconds}s`;
+
+    this._logger.info(
+      `[client-${this.getToken()}] Pause: reset_at=${new Date(resetAt).toISOString()}, reset_in=${timeUntilReset}`,
+    );
 
     this._resumeTimer = setTimeout(
       () => {
