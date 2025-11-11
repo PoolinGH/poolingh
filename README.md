@@ -273,9 +273,9 @@ npm run test
 
 If you want to contribute to the project, please consider the following instructions:
 
-- Any method or class must be named clearly (no abbreviations).
+- Any file, class, method, attribute must be named clearly (i.e., no abbreviations).
 - More generally, any contribution must follow the conventions and keep the shape of previous contributions.
-- Any contribution must be tested (unit tests). See `/test` directory.
+- Any contribution must be tested (unit tests). See `/tests` directory.
 - All the tests and the CI/CD pipeline must pass before definitively integrating the contribution.
 - Any contribution must be documented, especially through comments in the source code and by updating the README.md file.
 - Any contribution must be developed on a separate branch.
