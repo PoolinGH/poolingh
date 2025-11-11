@@ -78,7 +78,7 @@ export class GitHubApiQueue {
    * Starts the queue processing.
    */
   start() {
-    this._logger.info(chalk.cyan(`[queue] started`));
+    this._logger.info(chalk.cyan('[queue] started'));
     this._process();
   }
 
@@ -86,7 +86,7 @@ export class GitHubApiQueue {
    * Stops the queue processing.
    */
   stop() {
-    this._logger.info(chalk.cyan(`[queue] stopped`));
+    this._logger.info(chalk.cyan('[queue] stopped'));
     this._isStopped = true;
   }
 
@@ -100,7 +100,7 @@ export class GitHubApiQueue {
 
       // Stops if the error count is too high.
       if (this._errorCount >= this._maxErrorCountInTotal) {
-        this._logger.error(chalk.red(`[queue] error: error count too big`));
+        this._logger.error(chalk.red('[queue] error: error count too big'));
         return;
       }
 
