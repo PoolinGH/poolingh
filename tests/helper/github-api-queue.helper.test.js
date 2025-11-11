@@ -8,6 +8,7 @@ vi.mock('../../src/helper/logger.helper.js', () => ({
   Logger: vi.fn().mockImplementation(() => ({
     info: vi.fn(),
     error: vi.fn(),
+    warn: vi.fn(),
   })),
 }));
 
@@ -123,7 +124,9 @@ describe('GitHub Search API Queue', () => {
     queue.start();
 
     // Assert
-    expect(queue._logger.info).toHaveBeenCalledWith('[queue] Start');
+    expect(queue._logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('[queue] started'),
+    );
     queue.stop();
   });
 
@@ -135,7 +138,9 @@ describe('GitHub Search API Queue', () => {
     queue.stop();
 
     // Assert
-    expect(queue._logger.info).toHaveBeenCalledWith('[queue] Stop');
+    expect(queue._logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('[queue] stopped'),
+    );
     expect(queue._isStopped).toBe(true);
   });
 
@@ -150,7 +155,7 @@ describe('GitHub Search API Queue', () => {
 
     // Assert
     expect(queue._logger.error).toHaveBeenCalledWith(
-      '[queue] Error: error count too big',
+      expect.stringContaining('[queue] error: error count too big'),
     );
     queue.stop();
   });
@@ -299,7 +304,9 @@ describe('GitHub Search API Queue', () => {
     expect(queue._errorCount).toBe(1);
     expect(queue.getQueueLength()).toBe(1);
     expect(queue._logger.info).toHaveBeenCalledWith(
-      '[queue] Retry: url=https://api.github.com/search/404',
+      expect.stringContaining(
+        '[queue] retry: https://api.github.com/search/404',
+      ),
     );
 
     // Cleanup
@@ -334,7 +341,9 @@ describe('GitHub Search API Queue', () => {
     expect(queue.getRequestFailCount()).toBe(1);
     expect(queue.getQueueLength()).toBe(0);
     expect(queue._logger.error).toHaveBeenCalledWith(
-      '[queue] Abort: url=https://api.github.com/search/404',
+      expect.stringContaining(
+        '[queue] abort: https://api.github.com/search/404',
+      ),
     );
 
     // Cleanup

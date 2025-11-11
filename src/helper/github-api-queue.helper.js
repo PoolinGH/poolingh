@@ -1,6 +1,7 @@
 // IMPORTS
 
 import { Logger } from './logger.helper.js';
+import chalk from 'chalk';
 
 /**
  * Manages the GitHub Search API queueing shared between multiple GitHub Search API clients.
@@ -77,7 +78,7 @@ export class GitHubApiQueue {
    * Starts the queue processing.
    */
   start() {
-    this._logger.info('[queue] Start');
+    this._logger.info(chalk.cyan(`[queue] started`));
     this._process();
   }
 
@@ -85,7 +86,7 @@ export class GitHubApiQueue {
    * Stops the queue processing.
    */
   stop() {
-    this._logger.info('[queue] Stop');
+    this._logger.info(chalk.cyan(`[queue] stopped`));
     this._isStopped = true;
   }
 
@@ -99,7 +100,7 @@ export class GitHubApiQueue {
 
       // Stops if the error count is too high.
       if (this._errorCount >= this._maxErrorCountInTotal) {
-        this._logger.error('[queue] Error: error count too big');
+        this._logger.error(chalk.red(`[queue] error: error count too big`));
         return;
       }
 
@@ -127,7 +128,7 @@ export class GitHubApiQueue {
             request.runCallback(result);
           })
           .catch((error) => {
-            this._logger.error(`[queue] Error: ${error.message}`);
+            this._logger.error(chalk.red(`[queue] error: ${error.message}`));
 
             // Error rates counters.
             this._errorCount++;
@@ -141,11 +142,13 @@ export class GitHubApiQueue {
             if (
               this._errorUrls[request.getUrl()] < this._maxErrorCountPerRequest
             ) {
-              this._logger.info(`[queue] Retry: url=${request.getUrl()}`);
+              this._logger.info(
+                chalk.green(`[queue] retry: ${request.getUrl()}`),
+              );
               this.unshift(request); // Repushes the request if the request was not flagged too much.
             } else {
               this._logger.error(
-                `[queue] Abort: url=${request.getUrl()}`, // Aborts request after maximum number of attempts.
+                chalk.red(`[queue] abort: ${request.getUrl()}`), // Aborts request after maximum number of attempts.
               );
             }
           })

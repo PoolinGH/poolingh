@@ -10,4 +10,5 @@ tests/
 .gitignore
 .prettierrc.json
 .git
+.github
 .tgz

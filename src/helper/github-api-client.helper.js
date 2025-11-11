@@ -86,7 +86,7 @@ export class GitHubApiClient {
 
         // Returns the data.
         this._logger.info(
-          chalk.cyan(`[client-${this.getToken()}]`) + ` Query: url=${url}`,
+          chalk.cyan(`[client-${this.getToken()}] query: ${url}`),
         );
 
         return response;
@@ -105,14 +105,14 @@ export class GitHubApiClient {
             const resetTime = Date.now() + parseInt(retryAfter) * 1000;
             this._logger.warn(
               chalk.yellow(
-                `[client-${this.getToken()}] Rate limit exceeded (${error.response.status}), pausing until ${new Date(resetTime).toISOString()}`,
+                `[client-${this.getToken()}] caution: rate limit exceeded (${error.response.status}), pausing until ${new Date(resetTime).toISOString()}`,
               ),
             );
             this.pause(resetTime);
           } else if (this._resetAt > 0) {
             this._logger.warn(
               chalk.yellow(
-                `[client-${this.getToken()}] Rate limit exceeded (${error.response.status}), using stored reset time`,
+                `[client-${this.getToken()}] caution: rate limit exceeded (${error.response.status}), using stored reset time`,
               ),
             );
             this.pause(this._resetAt);
@@ -124,10 +124,10 @@ export class GitHubApiClient {
 
         // Returns the error.
         this._logger.info(
-          chalk.cyan(`[client-${this.getToken()}]`) + ` Query: url=${url}`,
+          chalk.cyan(`[client-${this.getToken()}] query: ${url}`),
         );
         this._logger.error(
-          chalk.red(`[client-${this.getToken()}] Error: ${error.message}`),
+          chalk.red(`[client-${this.getToken()}] error: ${error.message}`),
         );
         return Promise.reject(error);
       });
@@ -155,14 +155,14 @@ export class GitHubApiClient {
         this.pause(this._resetAt);
       }
       this._logger.info(
-        chalk.cyan(`[client-${this.getToken()}]`) +
-          chalk.magenta(` Rate limit remaining: ${this._remainingRequests}`) +
-          `, reset_time=${new Date(this._resetAt).toISOString()}`,
+        chalk.cyan(
+          `[client-${this.getToken()}] rate limit remaining: ${this._remainingRequests}, reset time: ${new Date(this._resetAt).toISOString()}`,
+        ),
       );
     } else {
       this._logger.warn(
         chalk.yellow(
-          `[client-${this.getToken()}] Rate limit headers not found in response`,
+          `[client-${this.getToken()}] caution: rate limit headers not found in response`,
         ),
       );
     }
@@ -189,11 +189,11 @@ export class GitHubApiClient {
     if (delay <= 0) {
       this._logger.info(
         chalk.green(
-          `[client-${this.getToken()}] Reset time is in the past, resuming immediately`,
+          `[client-${this.getToken()}] reset time is in the past, resuming immediately`,
         ),
       );
       this._resume();
-      this._logger.info(chalk.green(`[client-${this.getToken()}] Resumed`));
+      this._logger.info(chalk.green(`[client-${this.getToken()}] resumed`));
       return;
     }
 
@@ -204,15 +204,14 @@ export class GitHubApiClient {
       minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
     this._logger.info(
-      chalk.cyan(`[client-${this.getToken()}]`) +
-        chalk.yellow(' Paused: ') +
-        `reset_at=${new Date(resetAt).toISOString()}, ` +
-        chalk.bold.yellow(`reset_in=${timeUntilReset}`),
+      chalk.cyan(
+        `[client-${this.getToken()}] paused, reset time: ${new Date(resetAt).toISOString()}, reset in: ${timeUntilReset}`,
+      ),
     );
 
     this._resumeTimer = setTimeout(() => {
       this._resume();
-      this._logger.info(chalk.green(`[client-${this.getToken()}] Resumed`));
+      this._logger.info(chalk.green(`[client-${this.getToken()}] resumed`));
     }, delay);
   }
 

@@ -224,7 +224,7 @@ describe('GitHub Search API client', () => {
     expect(resumeSpy).toHaveBeenCalled();
     expect(client._logger.info).toHaveBeenCalledWith(
       expect.stringContaining(
-        'Reset time is in the past, resuming immediately',
+        'reset time is in the past, resuming immediately',
       ),
     );
 
