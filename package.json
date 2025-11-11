@@ -1,6 +1,6 @@
 {
   "name": "poolingh",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PoolinGH is a lightweight, easy-to-use open-source library designed to accelerate and ensure efficient mining of the GitHub Search API while taking full advantage of its potential. It enables automatic pooling of multiple tokens, parallelizes queries, optimizes queues, regulates network and API usage while respecting GitHub's limits and best practices, manages error recovery or pruning in case of deadlocks, maximizes search coverage, and monitors the progress of the process.",
   "keywords": [
     "poolingh",
