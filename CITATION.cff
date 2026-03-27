@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "André"
+  given-names: "Maxime"
+  orcid: "https://orcid.org/0009-0002-1241-8319"
+- family-names: "Raglianti"
+  given-names: "Marco"
+  orcid: "https://orcid.org/0000-0002-6878-5604"
+- family-names: "Serbout"
+  given-names: "Souhaila"
+  orcid: "https://orcid.org/0000-0002-8144-2606"
+title: "PoolinGH"
+version: 1.0.2
+doi: 10.5281/zenodo.17574293
+date-released: 2025-11-11
+url: "https://github.com/PoolinGH/poolingh"
