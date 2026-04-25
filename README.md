@@ -24,10 +24,22 @@
 ## 📝 How to cite?
 
 ```latex
+
+%%% Cite the paper
+
+@inproceedings{andre2026poolingh,
+  title         = {PoolinGH: Fast, Efficient, and Robust GitHub Repository Mining},
+  author        = {Andr{\'e}, Maxime and Raglianti, Marco and Serbout, Souhaila and Cleve, Anthony and Lanza, Michele},
+  booktitle     = {Proceedings of the 23rd International Mining Software Repositories Conference (MSR 2026): Data and Tool Showcase Track},
+  year          = {2026},
+  organization  = {ACM Press},
+  doi           = {https://doi.org/10.1145/3793302.3793321}
+}
+
+%%% Cite the software
+
 @software{poolingh,
-  author    = {André, Maxime and
-               Serbout, Souhaila and
-               Raglianti, Marco},
+  author    = {Andr{\'e}, Maxime and Serbout, Souhaila and Raglianti, Marco},
   title     = {PoolinGH},
   month     = oct,
   year      = 2025,
@@ -281,7 +293,7 @@ If you want to contribute to the project, please consider the following instruct
 - Any contribution must be developed on a separate branch.
 - Any contribution must be approved via the pull request mechanism.
 
-# Further reading
+# 📖 Further reading
 
 - [About the REST API](https://docs.github.com/en/rest/about-the-rest-api/about-the-rest-api?apiVersion=2022-11-28)
 - [About search](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#about-search)
@@ -293,3 +305,9 @@ If you want to contribute to the project, please consider the following instruct
 - [Troubleshooting the REST API](https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api?apiVersion=2022-11-28)
 - [Best practices for using the REST API](https://docs.github.com/en/rest/using-the-rest-api/best-practices-for-using-the-rest-api?apiVersion=2022-11-28)
 - [Limitations on query length](https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#limitations-on-query-length)
+
+# 💯 Supporting
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=poolingh/poolingh&type=date&legend=top-left)](https://www.star-history.com/#poolingh/poolingh&type=date&legend=top-left)
